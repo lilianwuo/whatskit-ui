@@ -19,10 +19,23 @@ function Login() {
   const { translate: t } = useTranslation();
 
   async function handleLogInWithOauth(provider: OAuthProvider) {
+    let hashToPreserve = "";
+    if (redirect && redirect.includes("#")) {
+      hashToPreserve = redirect.substring(redirect.indexOf("#") + 1);
+    } else if (window.location.hash) {
+      hashToPreserve = window.location.hash.substring(1);
+    }
+
+    if (hashToPreserve) {
+      sessionStorage.setItem("oauth_redirect_hash", hashToPreserve);
+    }
+
+    const cleanRedirect = redirect ? redirect.split("#")[0] : "/";
+
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: window.location.origin + (redirect || "/"),
+        redirectTo: window.location.origin + cleanRedirect,
       },
     });
   }

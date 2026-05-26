@@ -4,7 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgents, useCurrentAgent } from "@/queries/useAgents";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, LoaderCircle } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import type { JSX } from "react";
 
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_auth/agents/")({
 function ListAgents() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { data: agents } = useCurrentAgents();
+  const { data: agents, isLoading } = useCurrentAgents();
   const { data: currentAgent } = useCurrentAgent();
   const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
 
@@ -46,6 +46,11 @@ function ListAgents() {
           disabled={!isAdmin}
           disabledReason={t("Requiere permisos de administrador")}
         />
+        {isLoading && (
+          <div className="flex justify-center p-4">
+            <LoaderCircle className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
         {agents?.filter(a => a.ai).map((agent) => (
           <SectionItem
             key={agent.id}

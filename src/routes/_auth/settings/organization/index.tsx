@@ -6,12 +6,12 @@ import { useCurrentOrganization, useUpdateCurrentOrganization, useDeleteCurrentO
 import { useCurrentAgent } from "@/queries/useAgents";
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import useBoundStore from "@/stores/useBoundStore";
 import Button from "@/components/Button";
 import SelectField from "@/components/SelectField";
 import TextAreaField from "@/components/TextAreaField";
-import { type OrganizationUpdate } from "@/supabase/client";
+import { type OrganizationUpdate, supabase } from "@/supabase/client";
 
 export const Route = createFileRoute("/_auth/settings/organization/")({
   beforeLoad: () => {
@@ -35,6 +35,53 @@ function EditOrganization() {
   const updateOrg = useUpdateCurrentOrganization();
   const deleteOrg = useDeleteCurrentOrganization();
 
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    if (!org) return;
+    setIsExporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("data-export", {
+        body: { organization_id: org.id },
+      });
+
+      if (error) throw error;
+
+      const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+        JSON.stringify(data, null, 2)
+      )}`;
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", jsonString);
+      downloadAnchor.setAttribute("download", `whatskit-export-${org.name}-${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert(t("Error al exportar datos de la organización"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const onDelete = async () => {
+    if (!org) return;
+    try {
+      await supabase.functions.invoke("storage-cleanup", {
+        body: { organization_id: org.id },
+      });
+    } catch (err) {
+      console.error("Storage cleanup failed:", err);
+    }
+
+    deleteOrg.mutate(undefined, {
+      onSuccess: () => {
+        setActiveOrg(null);
+        navigate({ to: "/conversations" });
+      },
+    });
+  };
+
   const normalizedOrg = useMemo(() => {
     if (!org) return undefined;
     return {
@@ -57,15 +104,12 @@ function EditOrganization() {
     <>
       <SectionHeader
         title={t("Editar organización")}
-        onDelete={() => deleteOrg.mutate(undefined, {
-          onSuccess: () => {
-            setActiveOrg(null);
-            navigate({ to: "/conversations" })
-          }
-        })}
+        onDelete={onDelete}
         deleteDisabled={!isOwner}
         deleteDisabledReason={t("Requiere permisos de propietario")}
         deleteLoading={deleteOrg.isPending}
+        deleteTitle="¿Eliminar organización?"
+        deleteDescription="¿Estás completamente seguro de que deseas eliminar esta organización? Se borrarán permanentemente todas las conversaciones, agentes, contactos y configuraciones asociadas. Esta acción no se puede deshacer."
       />
 
       <SectionBody>
@@ -113,6 +157,23 @@ function EditOrganization() {
             disabled={!isOwner}
           />
         </form>
+
+        <div className="border-t border-border mt-[24px] pt-[24px] flex flex-col gap-[12px]">
+          <h4 className="text-[14px] font-semibold text-foreground">{t("Exportar datos")}</h4>
+          <p className="text-[12px] text-muted-foreground">
+            {t("Descarga una copia completa de todos los datos de tu organización en formato JSON.")}
+          </p>
+          <Button
+            type="button"
+            className="self-start secondary"
+            disabled={isExporting || !isOwner}
+            loading={isExporting}
+            onClick={handleExport}
+            disabledReason={!isOwner ? t("Requiere permisos de propietario") : undefined}
+          >
+            {t("Exportar datos")}
+          </Button>
+        </div>
       </SectionBody>
 
       <SectionFooter>

@@ -97,6 +97,9 @@ function AddWebhook() {
                 placeholder={t("Token de autenticación")}
                 {...register("token")}
               />
+              <p className="text-muted-foreground text-[14px] mt-[4px]">
+                {t("Se enviará en el encabezado Authorization. El sistema añade 'Bearer ' automáticamente.")}
+              </p>
             </label>
           </fieldset>
         </form>

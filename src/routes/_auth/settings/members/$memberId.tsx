@@ -118,16 +118,18 @@ function EditMember() {
             required
           />
 
-          {invitation && invitation.email && <label>
-            <div className="label">{t("Correo electrónico")}</div>
-            <input
-              type="email"
-              className="text"
-              readOnly
-              placeholder={t("usuario@ejemplo.com")}
-              {...register("extra.invitation.email")}
-            />
-          </label>}
+          {(agent.extra?.email || (invitation && invitation.email)) && (
+            <label>
+              <div className="label">{t("Correo electrónico")}</div>
+              <input
+                type="email"
+                className="text"
+                readOnly
+                disabled
+                value={agent.extra?.email || invitation?.email || ""}
+              />
+            </label>
+          )}
         </form>
       </SectionBody>
 

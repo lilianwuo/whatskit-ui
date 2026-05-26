@@ -5,7 +5,7 @@ import { useCurrentAgents, useCurrentAgent } from "@/queries/useAgents";
 import SectionItem from "@/components/SectionItem";
 import Avatar from "@/components/Avatar";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, LoaderCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/settings/members/")({
   component: ListMembers,
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_auth/settings/members/")({
 function ListMembers() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { data: agents } = useCurrentAgents();
+  const { data: agents, isLoading } = useCurrentAgents();
   const { data: currentAgent } = useCurrentAgent();
   const isOwner = currentAgent?.extra?.role === "owner";
 
@@ -45,17 +45,23 @@ function ListMembers() {
           disabled={!isOwner}
           disabledReason={t("Requiere permisos de propietario")}
         />
+        {isLoading && (
+          <div className="flex justify-center p-4">
+            <LoaderCircle className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
         {agents
           ?.filter((agent) => !agent.ai)
           .map((agent) => {
             const role = roles[agent.extra?.role || "member"];
             const pending = agent.extra?.invitation?.status === "pending";
             const isMe = agent.id === currentAgent?.id;
+            const email = agent.extra?.email || agent.extra?.invitation?.email;
 
             return (<SectionItem
               key={agent.id}
               title={agent.name + (isMe ? ` (${t("tú")})` : "")}
-              description={role + (pending ? ` (${t("pendiente")})` : "")}
+              description={role + (pending ? ` (${t("pendiente")})` : "") + (email ? ` • ${email}` : "")}
               aside={
                 <Avatar
                   src={agent.picture}

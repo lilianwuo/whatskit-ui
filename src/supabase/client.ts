@@ -630,6 +630,7 @@ export type ToolConfig =
 
 export type HumanAgentExtra = {
   role: "member" | "admin" | "owner";
+  email?: string;
   invitation?: {
     organization_name: string;
     email: string;
@@ -639,6 +640,7 @@ export type HumanAgentExtra = {
 
 export type HumanAgentExtraInsert = {
   role: "member" | "admin" | "owner";
+  email?: string;
   invitation?: {
     organization_name: string;
     email: string;
@@ -648,6 +650,7 @@ export type HumanAgentExtraInsert = {
 
 export type HumanAgentExtraUpdate = {
   role?: "member" | "admin" | "owner";
+  email?: string;
   invitation?: {
     organization_name?: string;
     email?: string;

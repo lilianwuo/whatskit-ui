@@ -5,7 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useContacts } from "@/queries/useContacts";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, LoaderCircle } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { formatPhoneNumber } from "@/utils/FormatUtils";
 import SearchBar from "@/components/SearchBar";
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_auth/contacts/")({
 function ListContacts() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { data: contacts } = useContacts();
+  const { data: contacts, isLoading } = useContacts();
   const [search, setSearch] = useState("");
 
   let filtered = contacts ?? [];
@@ -55,6 +55,11 @@ function ListContacts() {
             })
           }
         />
+        {isLoading && (
+          <div className="flex justify-center p-4">
+            <LoaderCircle className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
         {search && filtered.length === 0 && (
           <div className="py-[32px] text-center text-muted-foreground text-[14px]">
             {t("Sin resultados para")} "{search}"

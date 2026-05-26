@@ -512,7 +512,7 @@ function MCPClientEditor<T extends FieldValues>({
         </label>
 
         <label>
-          <div className="label">{t("Token")} ({t("opcional")})</div>
+          <div className="label">{t("Encabezado Authorization")} ({t("opcional")})</div>
           <input
             type="text"
             className="text"
@@ -635,7 +635,7 @@ function HTTPClientEditor<T extends FieldValues>({
         </p>
 
         <label>
-          <div className="label">{t("Token")} ({t("opcional")})</div>
+          <div className="label">{t("Encabezado Authorization")} ({t("opcional")})</div>
           <input
             type="text"
             className="text"
@@ -1182,7 +1182,7 @@ function OpenBSPMCPClientEditor<T extends FieldValues>({
           </div>
         ) : (
           <label>
-            <div className="label">{t("Token")}</div>
+            <div className="label">{t("Encabezado Authorization")}</div>
             <input
               type="text"
               className="text"

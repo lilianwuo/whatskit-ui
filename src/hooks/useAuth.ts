@@ -1,5 +1,5 @@
 import { supabase } from "@/supabase/client";
-import useBoundStore from "@/stores/useBoundStore";
+import useBoundStore, { reset as resetStore } from "@/stores/useBoundStore";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Route } from "@/routes/__root";
@@ -12,7 +12,6 @@ import { useQueryClient } from "@tanstack/react-query";
  */
 export function useAuth() {
   const setUser = useBoundStore((state) => state.ui.setUser);
-  const setActiveOrg = useBoundStore((state) => state.ui.setActiveOrg);
   const navigate = useNavigate();
   const { redirect } = Route.useSearch();
   const queryClient = useQueryClient();
@@ -33,18 +32,24 @@ export function useAuth() {
 
       // Signed in
       if (!loggedUser && user && event === "SIGNED_IN") {
+        const savedHash = sessionStorage.getItem("oauth_redirect_hash");
+        sessionStorage.removeItem("oauth_redirect_hash");
+
+        const targetPath = redirect ? redirect.split("#")[0] : "/";
+
         navigate({
-          to: redirect || "/",
+          to: targetPath,
+          hash: savedHash || undefined,
         });
       }
 
       // Signed out
       if (
-        loggedUser && !user && !window.location.pathname.startsWith("/login")
+        !user && !window.location.pathname.startsWith("/login")
       ) {
-        // Clear all queries and org state
+        // Clear all queries and reset store
         queryClient.clear();
-        setActiveOrg(null);
+        resetStore();
 
         navigate({
           to: "/login",

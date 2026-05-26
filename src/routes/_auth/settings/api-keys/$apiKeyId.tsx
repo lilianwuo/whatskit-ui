@@ -49,14 +49,32 @@ function ApiKeyDetail() {
 
       <SectionBody>
         <form>
-          <div className="instructions">
-            <p>
-              {t("Configura los siguientes encabezados HTTP para autenticarte:")}
+          <div className="instructions space-y-3">
+            <p className="font-semibold text-foreground">
+              {t("Autenticación para Edge Functions (cURL / HTTP):")}
             </p>
-            <ul>
-              <li><code className="font-mono">authorization:</code> <code className="font-mono break-all">{import.meta.env.VITE_SUPABASE_ANON_KEY}</code></li>
-              <li><code className="font-mono">api-key:</code> {t("el valor de la clave generada abajo")}</li>
-            </ul>
+            <pre className="p-3 bg-muted rounded font-mono text-[13px] overflow-x-auto text-muted-foreground whitespace-pre">
+{`curl -X POST ${import.meta.env.VITE_SUPABASE_URL}/functions/v1/[FUNCTION_NAME] \\
+  -H "apikey: ${import.meta.env.VITE_SUPABASE_ANON_KEY}" \\
+  -H "Authorization: Bearer <TU_CLAVE_API>"`}
+            </pre>
+
+            <p className="font-semibold text-foreground">
+              {t("Autenticación usando el SDK de Supabase (JavaScript):")}
+            </p>
+            <pre className="p-3 bg-muted rounded font-mono text-[13px] overflow-x-auto text-muted-foreground whitespace-pre">
+{`const supabase = createClient(
+  "${import.meta.env.VITE_SUPABASE_URL}",
+  "${import.meta.env.VITE_SUPABASE_ANON_KEY}",
+  {
+    global: {
+      headers: {
+        "api-key": "<TU_CLAVE_API>"
+      }
+    }
+  }
+)`}
+            </pre>
           </div>
 
           <label>

@@ -5,7 +5,7 @@ import { useApiKeys } from "@/queries/useApiKeys";
 import { useCurrentAgent } from "@/queries/useAgents";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Key, Plus } from "lucide-react";
+import { Key, Plus, LoaderCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/settings/api-keys/")({
   component: ListApiKeys,
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_auth/settings/api-keys/")({
 function ListApiKeys() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { data: apiKeys } = useApiKeys();
+  const { data: apiKeys, isLoading } = useApiKeys();
   const { data: currentAgent } = useCurrentAgent();
   const isOwner = currentAgent?.extra?.role === "owner";
 
@@ -45,6 +45,11 @@ function ListApiKeys() {
           disabled={!isOwner}
           disabledReason={t("Requiere permisos de propietario")}
         />
+        {isLoading && (
+          <div className="flex justify-center p-4">
+            <LoaderCircle className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
         {apiKeys?.map((apiKey) => (
           <SectionItem
             key={apiKey.id}

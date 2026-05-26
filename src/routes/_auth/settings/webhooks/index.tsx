@@ -5,7 +5,7 @@ import { useWebhooks } from "@/queries/useWebhooks";
 import { useCurrentAgent } from "@/queries/useAgents";
 import SectionItem from "@/components/SectionItem";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Plus, Webhook } from "lucide-react";
+import { Plus, Webhook, LoaderCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/settings/webhooks/")({
   component: ListWebhooks,
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_auth/settings/webhooks/")({
 function ListWebhooks() {
   const { translate: t } = useTranslation();
   const navigate = useNavigate();
-  const { data: webhooks } = useWebhooks();
+  const { data: webhooks, isLoading } = useWebhooks();
   const { data: currentAgent } = useCurrentAgent();
   const isAdmin = ["admin", "owner"].includes(currentAgent?.extra?.role || "");
 
@@ -39,6 +39,11 @@ function ListWebhooks() {
           disabled={!isAdmin}
           disabledReason={t("Requiere permisos de administrador")}
         />
+        {isLoading && (
+          <div className="flex justify-center p-4">
+            <LoaderCircle className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
         {webhooks?.map((webhook) => (
           <SectionItem
             key={webhook.id}
