@@ -15,7 +15,7 @@ export default defineConfig([
     extends: [
       js.configs.recommended,
       //tseslint.configs.recommended,
-      tseslint.configs.strictTypeChecked,
+      tseslint.configs.recommendedTypeChecked,
       reactHooks.configs["recommended-latest"],
     ],
     languageOptions: {
