@@ -15,16 +15,12 @@ export default defineConfig([
     extends: [
       js.configs.recommended,
       //tseslint.configs.recommended,
-      tseslint.configs.recommendedTypeChecked,
+      tseslint.configs.recommended,
       reactHooks.configs["recommended-latest"],
     ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
-      parserOptions: {
-        project: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
     },
   },
   eslintConfigPrettier,
