@@ -21,8 +21,13 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
   },
   eslintConfigPrettier,
   reactRefresh.configs.vite,
 ]);
+
