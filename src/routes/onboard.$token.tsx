@@ -121,9 +121,11 @@ function Onboard() {
 
   return (
     <div className="flex flex-col gap-9 justify-center items-center bg-background text-foreground h-dvh w-screen">
-      <div className="text-primary tracking-tighter font-bold text-[36px]">
-        OpenBSP
-      </div>
+      <img
+        src="/pocante-logo.png"
+        alt="Rede Pocante"
+        className="w-[200px] h-auto"
+      />
 
       <div className="flex flex-col gap-4 w-[320px] text-center">
         {state.status === "loading" && (

@@ -1,22 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
-import { GoogleOutlined, GithubOutlined } from "@ant-design/icons";
+import { GoogleOutlined } from "@ant-design/icons";
 
-type OAuthProvider = "google" | "github";
+type OAuthProvider = "google";
+
+export const ALLOWED_EMAIL_DOMAIN = "pocante.org";
 
 export const Route = createFileRoute("/login")({
   component: Login,
 });
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const { redirect } = Route.useSearch();
 
   const { translate: t } = useTranslation();
+
+  useEffect(() => {
+    const denied = sessionStorage.getItem("login_domain_denied");
+    if (denied) {
+      setMessage(
+        t(
+          `Acesso restrito: utilize um e-mail @${ALLOWED_EMAIL_DOMAIN} para entrar.`,
+        ),
+      );
+      sessionStorage.removeItem("login_domain_denied");
+    }
+  }, [t]);
 
   async function handleLogInWithOauth(provider: OAuthProvider) {
     let hashToPreserve = "";
@@ -36,85 +48,57 @@ function Login() {
       provider,
       options: {
         redirectTo: window.location.origin + cleanRedirect,
+        queryParams: {
+          hd: ALLOWED_EMAIL_DOMAIN,
+        },
       },
     });
   }
 
-  async function handleLogInWithEmail(e?: React.FormEvent) {
-    if (e) e.preventDefault();
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setMessage(t("¡Credenciales inválidas!"));
-    } else {
-      setEmail("");
-      setPassword("");
-    }
-  }
-
   return (
-    <div className="flex flex-col gap-9 justify-center items-center bg-background text-foreground h-dvh w-screen">
-      <div className="text-primary tracking-tighter font-bold text-[36px]">
-        OpenBSP
-      </div>
+    <div className="relative flex flex-col gap-9 justify-center items-center bg-background text-foreground h-dvh w-screen">
+      <img
+        src="/pocante-logo.png"
+        alt="Rede Pocante"
+        className="w-[200px] h-auto"
+      />
 
-      <div className="flex flex-col gap-3 w-[250px]">
+      <div className="flex flex-col gap-3 w-[280px]">
         <button
           type="button"
-          className="primary bg-blue-500 hover:bg-blue-400 text-white w-full border-none"
+          className="primary bg-primary hover:opacity-90 text-primary-foreground w-full border-none"
           onClick={() => handleLogInWithOauth("google")}
         >
-          <GoogleOutlined /> {t("Continuar con Google")}
+          <GoogleOutlined /> {t("Entrar com Google")}
         </button>
 
-        <button
-          type="button"
-          className="primary bg-gray-900 hover:bg-gray-800 text-white w-full border-none"
-          onClick={() => handleLogInWithOauth("github")}
+        {message && (
+          <div className="self-center text-destructive text-sm text-center">
+            {message}
+          </div>
+        )}
+
+        <div className="text-muted-foreground text-xs text-center mt-2">
+          {t(`Acesso exclusivo para e-mails @${ALLOWED_EMAIL_DOMAIN}`)}
+        </div>
+      </div>
+
+      <div className="absolute bottom-6 flex items-center gap-2 text-xs text-muted-foreground">
+        {t("Powered by")}
+        <img
+          src="/msnCloud-logo.png"
+          alt="msnCloud"
+          className="h-4 w-auto"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+        <span
+          className="font-semibold tracking-tight"
+          style={{ color: "var(--brand-msncloud)" }}
         >
-          <GithubOutlined /> {t("Continuar con GitHub")}
-        </button>
-
-        <div className={`border-b border-border w-full ${import.meta.env.DEV ? "" : "hidden"}`} />
-
-        <form onSubmit={handleLogInWithEmail} className={`login-form ${import.meta.env.DEV ? "" : "hidden"}`}>
-          <label>
-            <div className="label">{t("Correo electrónico")}</div>
-            <input
-              className="text"
-              placeholder="gori@gmail.com"
-              type="text"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-            />
-          </label>
-
-          <label>
-            <div className="label">{t("Contraseña")}</div>
-            <input
-              className="text"
-              placeholder="******"
-              type="password"
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-            />
-          </label>
-
-          {message && (
-            <div className="self-center text-destructive text-md">{message}</div>
-          )}
-
-          <button
-            type="submit"
-            className="primary w-full mt-[16px]"
-          >
-            {t("Entrar")}
-          </button>
-        </form>
+          msnCloud
+        </span>
       </div>
     </div>
   );

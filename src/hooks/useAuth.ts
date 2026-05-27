@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Route } from "@/routes/__root";
 import { useQueryClient } from "@tanstack/react-query";
+import { ALLOWED_EMAIL_DOMAIN } from "@/routes/login";
 
 /**
  * Hook to manage authentication state
@@ -28,6 +29,18 @@ export function useAuth() {
       const loggedUser = useBoundStore.getState().ui.user;
 
       const user = session?.user ?? null;
+
+      // Block sign-in if email domain is not allowed
+      if (user && event === "SIGNED_IN") {
+        const email = user.email ?? "";
+        const domain = email.split("@")[1] ?? "";
+        if (domain !== ALLOWED_EMAIL_DOMAIN) {
+          sessionStorage.setItem("login_domain_denied", "1");
+          void supabase.auth.signOut();
+          return;
+        }
+      }
+
       setUser(user);
 
       // Signed in
