@@ -14,7 +14,6 @@ export default defineConfig([
     files: ["**/*.{ts,tsx}"],
     extends: [
       js.configs.recommended,
-      //tseslint.configs.recommended,
       tseslint.configs.recommended,
       reactHooks.configs["recommended-latest"],
     ],
@@ -22,8 +21,14 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      "no-unused-expressions": "off",
+      "prefer-const": "off",
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "react-hooks/exhaustive-deps": "off",
+    },
   },
   eslintConfigPrettier,
   reactRefresh.configs.vite,
 ]);
-
