@@ -58,20 +58,13 @@ export function isValidPhoneNumber(phoneNumber: string): boolean {
 
 /**
  * Normalize phone number to E.164 format without the plus sign.
- * For Argentina (+54), ensures the 9 is included after country code for mobile numbers.
  * Returns original if parsing fails.
  */
 export function normalizePhoneNumber(phoneNumber: string): string {
   try {
     const parsed = parsePhoneNumberWithError(phoneNumber, { extract: true });
     // remove the +
-    let number = parsed.number.slice(1);
-
-    if (parsed.country === "AR" && !number.startsWith("549")) {
-      number = number.replace("54", "549");
-    }
-
-    return number
+    return parsed.number.slice(1);
   } catch {
     // Return cleaned version (digits only) if parsing fails
     return phoneNumber.replace(/\D/g, '');

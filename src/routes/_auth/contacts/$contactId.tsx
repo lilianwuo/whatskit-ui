@@ -93,7 +93,7 @@ function ContactDetail() {
                     <input
                       type="tel"
                       className={`text ${errors.addresses?.[idx]?.address ? "border-destructive" : ""}`}
-                      placeholder={t("+54 9 11 1234 5678")}
+                      placeholder={t("+55 11 91234 5678")}
                       {...register(`addresses.${idx}.address`, {
                         validate: (value) => !value || isValidPhoneNumber(value) || t("Número inválido")
                       })}

@@ -37,14 +37,11 @@ function NewChat() {
     // If empty after sanitizing, return empty string
     if (!digits) return "";
 
-    // If it already starts with 549, return as is
-    if (digits.startsWith("549")) return digits;
+    // If it already starts with 55 (Brazil DDI), return as is
+    if (digits.startsWith("55")) return digits;
 
-    // If it starts with 54 but not 549, prepend 9
-    if (digits.startsWith("54")) return "549" + digits.slice(2);
-
-    // Otherwise prepend 549
-    return "549" + digits;
+    // Otherwise prepend 55
+    return "55" + digits;
   }
 
   return (
