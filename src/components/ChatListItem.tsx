@@ -255,7 +255,7 @@ export default function ChatListItem({
             <Avatar
               fallback={nameInitials(name || "?")}
               size={49}
-              className="bg-accent text-accent-foreground border border-border text-[16px]"
+              className="bg-ring text-ring-foreground border border-border text-[16px]"
             />
           </div>
           <div className="info flex flex-col justify-center grow min-w-0 pr-[15px]">

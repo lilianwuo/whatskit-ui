@@ -119,7 +119,7 @@ function AppLayout() {
             {!activeOrgId && (
               <ActionCard
                 icon={<Building2 className="w-[24px] h-[24px]" />}
-                title={t("Crear organización")}
+                title={t("Criar organização")}
                 to="/settings/organization/new"
               />
             )}
@@ -128,14 +128,14 @@ function AppLayout() {
                 {!hasAiAgents && (
                   <ActionCard
                     icon={<Bot className="w-[24px] h-[24px]" />}
-                    title={t("Crear agente")}
+                    title={t("Criar agente")}
                     to="/agents/new"
                   />
                 )}
                 {hasAiAgents && (
                   <ActionCard
                     icon={<MessageSquarePlus className="w-[24px] h-[24px]" />}
-                    title={t("Iniciar conversación")}
+                    title={t("Iniciar conversação")}
                     to="/conversations/new"
                   />
                 )}
