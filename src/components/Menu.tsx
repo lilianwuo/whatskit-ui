@@ -12,6 +12,7 @@ import {
   Languages,
   Plus,
   NotebookTabs,
+  Send,
 } from "lucide-react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { LinkButton } from "./LinkButton";
@@ -74,6 +75,16 @@ export default function Menu() {
           className="mt-[10px]"
         >
           <NotebookTabs className="w-[24px] h-[24px] stroke-[2]" />
+        </LinkButton>
+
+        {/* Broadcast (bulk dispatch) button */}
+        <LinkButton
+          to="/broadcast"
+          title={t("Disparo en masa")}
+          isActive={pathname.startsWith("/broadcast")}
+          className="mt-[10px]"
+        >
+          <Send className="w-[24px] h-[24px] stroke-[2]" />
         </LinkButton>
 
         {/* Integrations button */}

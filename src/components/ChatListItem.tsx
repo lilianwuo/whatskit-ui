@@ -20,7 +20,7 @@ import { AtSign, Pause } from "lucide-react";
 import { useCurrentAgents, useCurrentAgent } from "@/queries/useAgents";
 import { useContactByAddress } from "@/queries/useContacts";
 import { useContactAddress } from "@/queries/useContactsAddresses";
-import { nameInitials } from "@/utils/FormatUtils";
+import { nameInitials, formatPhoneNumber } from "@/utils/FormatUtils";
 import { useNavigate } from "@tanstack/react-router";
 
 function mediaPreview(t: (content: string) => ReactNode, message?: MessageRow) {
@@ -212,6 +212,15 @@ export default function ChatListItem({
   // Name fallback order: conversation.name → contact.name → contactAddress.extra?.name
   const name = conversation?.name || contact?.name || contactAddress?.extra?.name;
 
+  // When there is no name, show the formatted phone number (for WhatsApp) instead of "?".
+  const phoneFallback =
+    conversation?.service === "whatsapp" && conversation?.contact_address
+      ? formatPhoneNumber(conversation.contact_address)
+      : undefined;
+
+  // Label shown in the list: name → formatted phone → "?".
+  const displayName = name || phoneFallback || "?";
+
   const { translate: t, currentLanguage } = useTranslation();
 
   function formatTime(timestamp: string): string {
@@ -261,7 +270,7 @@ export default function ChatListItem({
           <div className="info flex flex-col justify-center grow min-w-0 pr-[15px]">
             {/* Upper row */}
             <div className="flex justify-between items-baseline">
-              <div className="truncate text-foreground text-[16px]">{name || "?"}</div>
+              <div className="truncate text-foreground text-[16px]">{displayName}</div>
               <div
                 className={
                   "text-[12px] ml-[6px] capitalize" +
@@ -295,7 +304,11 @@ export default function ChatListItem({
                   )}
                 <div className="truncate text-[14px]">
                   {preview?.content.type === "text" && preview.content.text}
-                  {preview?.content.type === "data" && JSON.stringify(preview.content.data)}
+                  {preview?.content.type === "data" &&
+                    (preview.content.text ||
+                      (preview.content.data as { name?: string } | undefined)
+                        ?.name ||
+                      "")}
                   {preview?.content.type === "file" && mediaPreviewContent}
                 </div>
               </div>

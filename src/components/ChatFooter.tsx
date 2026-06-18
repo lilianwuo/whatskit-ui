@@ -14,7 +14,6 @@ import { type FileDraft } from "@/stores/chatSlice";
 import {
   type Draft,
   type MessageRow,
-  type TemplateMessage,
 } from "@/supabase/client";
 import { TickContext } from "@/contexts/useTick";
 import dayjs from "dayjs";
@@ -24,6 +23,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentAgent } from "@/queries/useAgents";
 import { moveCursorToEnd } from "@/utils/UtilityFunctions";
 import { htmlToMarkdown } from "@/utils/htmlToMarkdown";
+import { buildTemplateMessage } from "@/utils/TemplateUtils";
 import TemplatePicker from "./TemplatePicker";
 
 function TemplateVarInput({
@@ -152,7 +152,6 @@ export default function ChatFooter() {
   const templateBody = templateDraft?.components.find((c) => c.type === "BODY");
   const templateHead = templateDraft?.components.find((c) => c.type === "HEADER");
   const templateFoot = templateDraft?.components.find((c) => c.type === "FOOTER");
-  const templateButtons = templateDraft?.components.find((c) => c.type === "BUTTONS");
 
   const bodyExamples = templateBody?.example?.body_text[0] || [];
   const headExamples = templateHead?.example?.header_text || [];
@@ -275,71 +274,11 @@ export default function ChatFooter() {
     // If the conv has the `updated_at` unset, it means it has not been pushed to the DB yet.
     !conv.updated_at && await pushConversationToDb(conv);
 
-    // Build rendered text
-    let bodyContent = templateBody.text;
-    let headContent = templateHead?.text;
-    const components: TemplateMessage["template"]["components"] = [];
-
-    if (headVarValues.length && headVarCount > 0) {
-      let idx = 1;
-      for (const value of headVarValues.slice(0, headVarCount)) {
-        headContent = headContent?.replaceAll(`{{${idx}}}`, value);
-        idx++;
-      }
-      components.push({
-        type: "header",
-        parameters: headVarValues.slice(0, headVarCount).map((text) => ({ type: "text" as const, text })),
-      });
-    }
-
-    if (bodyVarValues.length && bodyVarCount > 0) {
-      let idx = 1;
-      for (const value of bodyVarValues.slice(0, bodyVarCount)) {
-        bodyContent = bodyContent.replaceAll(`{{${idx}}}`, value);
-        idx++;
-      }
-      components.push({
-        type: "body",
-        parameters: bodyVarValues.slice(0, bodyVarCount).map((text) => ({ type: "text" as const, text })),
-      });
-    }
-
-    if (templateButtons?.buttons) {
-      let idx = 0;
-      for (const button of templateButtons.buttons) {
-        components.push({
-          type: "button",
-          sub_type: "quick_reply",
-          index: idx.toString(),
-          parameters: [
-            {
-              type: "payload",
-              payload: button.text.toLowerCase().replaceAll(" ", "_"),
-            },
-          ],
-        });
-        idx++;
-      }
-    }
-
-    const template: TemplateMessage["template"] = {
-      name: templateDraft.name,
-      language: {
-        code: templateDraft.language,
-        policy: "deterministic" as const,
-      },
-    };
-
-    if (components.length) {
-      template.components = components;
-    }
-
-    // Build rendered text for display
-    const renderedParts: string[] = [];
-    if (headContent) renderedParts.push(`*${headContent}*`);
-    renderedParts.push(bodyContent);
-    if (templateFoot?.text) renderedParts.push(`_${templateFoot.text}_`);
-    const renderedBody = renderedParts.join("\n\n");
+    const { template, renderedBody } = buildTemplateMessage({
+      template: templateDraft,
+      headVarValues,
+      bodyVarValues,
+    });
 
     const record = newMessage(
       conv,

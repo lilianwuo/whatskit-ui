@@ -5,6 +5,11 @@ import {
 } from "@/supabase/client";
 import useBoundStore from "@/stores/useBoundStore";
 import { useEffect } from "react";
+import { formatPhoneNumber } from "@/utils/FormatUtils";
+import {
+  notifyNewMessage,
+  requestNotificationPermission,
+} from "@/utils/NotificationUtils";
 
 export const useRealtimeSubscription = () => {
   const activeOrgId = useBoundStore((state) => state.ui.activeOrgId);
@@ -16,6 +21,9 @@ export const useRealtimeSubscription = () => {
 
   useEffect(() => {
     if (!activeOrgId) return;
+
+    // Ask once for permission so we can notify about new messages.
+    requestNotificationPermission();
 
     const filter = `organization_id=eq.${activeOrgId}`;
 
@@ -53,6 +61,21 @@ export const useRealtimeSubscription = () => {
           const message = payload.new as MessageRow;
 
           pushMessages([message]);
+
+          // Notify about new incoming messages (only when the tab is unfocused).
+          if (message.direction === "incoming") {
+            const conversation = useBoundStore
+              .getState()
+              .chat.conversations.get(message.conversation_id);
+
+            const title =
+              conversation?.name ||
+              (conversation?.contact_address
+                ? formatPhoneNumber(conversation.contact_address)
+                : "msnCloud");
+
+            notifyNewMessage(message, title);
+          }
 
           //updateMessagesCache([message]);
         },

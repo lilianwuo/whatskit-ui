@@ -20,6 +20,7 @@ import { Route as AuthSettingsIndexRouteImport } from './routes/_auth/settings/i
 import { Route as AuthIntegrationsIndexRouteImport } from './routes/_auth/integrations/index'
 import { Route as AuthConversationsIndexRouteImport } from './routes/_auth/conversations/index'
 import { Route as AuthContactsIndexRouteImport } from './routes/_auth/contacts/index'
+import { Route as AuthBroadcastIndexRouteImport } from './routes/_auth/broadcast/index'
 import { Route as AuthAgentsIndexRouteImport } from './routes/_auth/agents/index'
 import { Route as AuthStatsUsageRouteImport } from './routes/_auth/stats/usage'
 import { Route as AuthStatsQuotasRouteImport } from './routes/_auth/stats/quotas'
@@ -102,6 +103,11 @@ const AuthConversationsIndexRoute = AuthConversationsIndexRouteImport.update({
 const AuthContactsIndexRoute = AuthContactsIndexRouteImport.update({
   id: '/contacts/',
   path: '/contacts/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthBroadcastIndexRoute = AuthBroadcastIndexRouteImport.update({
+  id: '/broadcast/',
+  path: '/broadcast/',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthAgentsIndexRoute = AuthAgentsIndexRouteImport.update({
@@ -283,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/stats/quotas': typeof AuthStatsQuotasRoute
   '/stats/usage': typeof AuthStatsUsageRoute
   '/agents': typeof AuthAgentsIndexRoute
+  '/broadcast': typeof AuthBroadcastIndexRoute
   '/contacts': typeof AuthContactsIndexRoute
   '/conversations': typeof AuthConversationsIndexRoute
   '/integrations': typeof AuthIntegrationsIndexRoute
@@ -323,6 +330,7 @@ export interface FileRoutesByTo {
   '/stats/quotas': typeof AuthStatsQuotasRoute
   '/stats/usage': typeof AuthStatsUsageRoute
   '/agents': typeof AuthAgentsIndexRoute
+  '/broadcast': typeof AuthBroadcastIndexRoute
   '/contacts': typeof AuthContactsIndexRoute
   '/conversations': typeof AuthConversationsIndexRoute
   '/integrations': typeof AuthIntegrationsIndexRoute
@@ -366,6 +374,7 @@ export interface FileRoutesById {
   '/_auth/stats/quotas': typeof AuthStatsQuotasRoute
   '/_auth/stats/usage': typeof AuthStatsUsageRoute
   '/_auth/agents/': typeof AuthAgentsIndexRoute
+  '/_auth/broadcast/': typeof AuthBroadcastIndexRoute
   '/_auth/contacts/': typeof AuthContactsIndexRoute
   '/_auth/conversations/': typeof AuthConversationsIndexRoute
   '/_auth/integrations/': typeof AuthIntegrationsIndexRoute
@@ -409,6 +418,7 @@ export interface FileRouteTypes {
     | '/stats/quotas'
     | '/stats/usage'
     | '/agents'
+    | '/broadcast'
     | '/contacts'
     | '/conversations'
     | '/integrations'
@@ -449,6 +459,7 @@ export interface FileRouteTypes {
     | '/stats/quotas'
     | '/stats/usage'
     | '/agents'
+    | '/broadcast'
     | '/contacts'
     | '/conversations'
     | '/integrations'
@@ -491,6 +502,7 @@ export interface FileRouteTypes {
     | '/_auth/stats/quotas'
     | '/_auth/stats/usage'
     | '/_auth/agents/'
+    | '/_auth/broadcast/'
     | '/_auth/contacts/'
     | '/_auth/conversations/'
     | '/_auth/integrations/'
@@ -602,6 +614,13 @@ declare module '@tanstack/react-router' {
       path: '/contacts'
       fullPath: '/contacts'
       preLoaderRoute: typeof AuthContactsIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/broadcast/': {
+      id: '/_auth/broadcast/'
+      path: '/broadcast'
+      fullPath: '/broadcast'
+      preLoaderRoute: typeof AuthBroadcastIndexRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/agents/': {
@@ -836,6 +855,7 @@ interface AuthRouteChildren {
   AuthConversationsNewRoute: typeof AuthConversationsNewRoute
   AuthIntegrationsMediaPreprocessingRoute: typeof AuthIntegrationsMediaPreprocessingRoute
   AuthAgentsIndexRoute: typeof AuthAgentsIndexRoute
+  AuthBroadcastIndexRoute: typeof AuthBroadcastIndexRoute
   AuthContactsIndexRoute: typeof AuthContactsIndexRoute
   AuthConversationsIndexRoute: typeof AuthConversationsIndexRoute
   AuthIntegrationsIndexRoute: typeof AuthIntegrationsIndexRoute
@@ -873,6 +893,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthIntegrationsMediaPreprocessingRoute:
     AuthIntegrationsMediaPreprocessingRoute,
   AuthAgentsIndexRoute: AuthAgentsIndexRoute,
+  AuthBroadcastIndexRoute: AuthBroadcastIndexRoute,
   AuthContactsIndexRoute: AuthContactsIndexRoute,
   AuthConversationsIndexRoute: AuthConversationsIndexRoute,
   AuthIntegrationsIndexRoute: AuthIntegrationsIndexRoute,
