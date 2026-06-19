@@ -122,8 +122,8 @@ function Onboard() {
   return (
     <div className="flex flex-col gap-9 justify-center items-center bg-background text-foreground h-dvh w-screen">
       <img
-        src="/pocante-logo.png"
-        alt="Rede Pocante"
+        src="/msnCloud-full.png"
+        alt="msnCloud"
         className="w-[200px] h-auto"
       />
 

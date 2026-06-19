@@ -1,14 +1,14 @@
 {
-    "short_name": "ChatScript",
-    "name": "ChatScript AI Agents",
+    "short_name": "msnCloud",
+    "name": "msnCloud",
     "icons": [
       {
-        "src": "/logo-192x192.png",
+        "src": "/msnCloud-logo.png",
         "type": "image/png",
         "sizes": "192x192"
       },
       {
-        "src": "/logo-512x512.png",
+        "src": "/msnCloud-logo.png",
         "type": "image/png",
         "sizes": "512x512"
       }
@@ -16,7 +16,6 @@
     "start_url": "/",
     "background_color": "#ffffff",
     "display": "standalone",
-    "theme_color": "#000000",
+    "theme_color": "#15bcbc",
     "orientation": "portrait"
   }
-  

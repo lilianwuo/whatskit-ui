@@ -1,71 +1,72 @@
 @import "tailwindcss";
 
 :root {
+  /* msnCloud palette — turquoise (primary), purple (ring/sidebar), pink (accent) */
   --background: #ffffff;
-  --foreground: #2a2a2a;
+  --foreground: #2b2533;
   --card: #ffffff;
-  --card-foreground: #2a2a2a;
+  --card-foreground: #2b2533;
   --popover: #ffffff;
-  --popover-foreground: #2a2a2a;
-  --primary: #d89ac0;
+  --popover-foreground: #2b2533;
+  --primary: #15bcbc;
   --primary-foreground: #ffffff;
-  --secondary: #f5e8ef;
-  --secondary-foreground: #5a3a4a;
-  --muted: #f0f0ef;
-  --muted-foreground: #6b6b6b;
-  --accent: #f5e8ef;
-  --accent-foreground: #ffffff;
-  --destructive: #c0392b;
-  --border: #c6c6c4;
-  --input: #e8e8e6;
-  --ring: #5a9bd5;
-  --sidebar: #faf5f8;
-  --sidebar-foreground: #5a3a4a;
-  --sidebar-primary: #af7792;
+  --secondary: #f1e7fb;
+  --secondary-foreground: #6d28d9;
+  --muted: #f1f0f3;
+  --muted-foreground: #6b6675;
+  --accent: #fde6f1;
+  --accent-foreground: #a83279;
+  --destructive: #dc2626;
+  --border: #d9d3e0;
+  --input: #ece8f1;
+  --ring: #a855f7;
+  --sidebar: #f6f1fc;
+  --sidebar-foreground: #4a3a5e;
+  --sidebar-primary: #8b5cf6;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5e8ef;
-  --sidebar-accent-foreground: #5a3a4a;
-  --sidebar-border: #e8d8e0;
-  --sidebar-ring: #af7792;
+  --sidebar-accent: #e6f7f7;
+  --sidebar-accent-foreground: #0f7d7d;
+  --sidebar-border: #e7dcf3;
+  --sidebar-ring: #8b5cf6;
 
-  --chat-out: #f5e8ef;
+  --chat-out: #d6f5f2;
   --chat-in: #ffffff;
 
-  --brand-msncloud: #39c8c8;
+  --brand-msncloud: #2ec5c5;
 }
 
 .dark {
-  --background: #1f1a1d;
-  --foreground: #e8d8e0;
-  --card: #1f1a1d;
-  --card-foreground: #e8d8e0;
-  --popover: #2a2327;
-  --popover-foreground: #e8d8e0;
-  --primary: #d89ac0;
-  --primary-foreground: #1f1a1d;
-  --secondary: #3a2e34;
-  --secondary-foreground: #e8d8e0;
-  --muted: #2a2327;
-  --muted-foreground: #b8a0ad;
-  --accent: #5a9bd5;
-  --accent-foreground: #ffffff;
-  --destructive: #e74c3c;
-  --border: #4a3d44;
-  --input: #4a3d44;
-  --ring: #5a9bd5;
-  --sidebar: #1a1518;
-  --sidebar-foreground: #e8d8e0;
-  --sidebar-primary: #af7792;
+  --background: #1b1626;
+  --foreground: #ece6f3;
+  --card: #1b1626;
+  --card-foreground: #ece6f3;
+  --popover: #241e31;
+  --popover-foreground: #ece6f3;
+  --primary: #2dd4d4;
+  --primary-foreground: #07302f;
+  --secondary: #392c4c;
+  --secondary-foreground: #ead9fb;
+  --muted: #251f31;
+  --muted-foreground: #b4a8c4;
+  --accent: #3c2440;
+  --accent-foreground: #f9c9e2;
+  --destructive: #ef4444;
+  --border: #443a54;
+  --input: #443a54;
+  --ring: #b27bf5;
+  --sidebar: #161020;
+  --sidebar-foreground: #ece6f3;
+  --sidebar-primary: #a855f7;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2a2327;
-  --sidebar-accent-foreground: #e8d8e0;
-  --sidebar-border: #3a2e34;
-  --sidebar-ring: #af7792;
+  --sidebar-accent: #251f31;
+  --sidebar-accent-foreground: #ece6f3;
+  --sidebar-border: #392c4c;
+  --sidebar-ring: #a855f7;
 
-  --chat-out: #5a3a4a;
-  --chat-in: #2a2327;
+  --chat-out: #134e4a;
+  --chat-in: #241e31;
 
-  --brand-msncloud: #39c8c8;
+  --brand-msncloud: #2dd4d4;
 }
 
 @theme inline {
