@@ -31,9 +31,6 @@ export function buildTemplateMessage({
   const templateBody = templateData.components.find((c) => c.type === "BODY");
   const templateHead = templateData.components.find((c) => c.type === "HEADER");
   const templateFoot = templateData.components.find((c) => c.type === "FOOTER");
-  const templateButtons = templateData.components.find(
-    (c) => c.type === "BUTTONS",
-  );
 
   const bodyVarCount = countVars(templateBody?.text);
   const headVarCount = countVars(templateHead?.text);
@@ -92,23 +89,10 @@ export function buildTemplateMessage({
     });
   }
 
-  if (templateButtons?.buttons) {
-    let idx = 0;
-    for (const button of templateButtons.buttons) {
-      components.push({
-        type: "button",
-        sub_type: "quick_reply",
-        index: idx.toString(),
-        parameters: [
-          {
-            type: "payload",
-            payload: button.text.toLowerCase().replaceAll(" ", "_"),
-          },
-        ],
-      });
-      idx++;
-    }
-  }
+  // Note: we intentionally do NOT emit button components. Static URL / phone
+  // buttons must not be sent as parameters (Meta rejects with #132000/#132001),
+  // and quick-reply buttons don't require parameters to render. Dynamic URL /
+  // copy-code buttons would need dedicated handling (not supported yet).
 
   const template: TemplateMessage["template"] = {
     name: templateData.name,
