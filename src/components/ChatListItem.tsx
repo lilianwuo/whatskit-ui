@@ -174,10 +174,13 @@ export default function ChatListItem({
       return { count, notification };
     }
 
+    // Incoming messages at or before this timestamp were already read (conv opened).
+    const readAt = +new Date(conversation?.extra?.read || 0);
+
     // Messages are sorted by most recent first.
     for (const msg of messages) {
       if (msg.direction === "incoming" && !countBreak) {
-        count += 1;
+        if (+new Date(msg.timestamp) > readAt) count += 1;
       } else if (
         msg.direction === "internal" &&
         // @ts-expect-error notification is deprecated (TODO: remove)

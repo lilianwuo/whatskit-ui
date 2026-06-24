@@ -6,6 +6,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(localizedFormat);
 import useBoundStore from "@/stores/useBoundStore";
 import Message from "./Message/Message";
+import { markConversationRead } from "@/utils/ConversationUtils";
 import { type MessageRow } from "@/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useCurrentOrganization } from "@/queries/useOrganizations";
@@ -222,6 +223,24 @@ export default function Chat() {
   useEffect(() => {
     scrollToBottom(false);
   }, [activeConvId]);
+
+  // Mark the conversation as read when opened (and when new incoming messages
+  // arrive while it is open), so it leaves the "pending" filter.
+  useEffect(() => {
+    if (!activeConvId) return;
+
+    const conv = useBoundStore.getState().chat.conversations.get(activeConvId);
+    if (!conv) return;
+
+    const latest = messages[0]; // most recent first
+    if (!latest || latest.direction !== "incoming") return;
+
+    const readAt = +new Date(conv.extra?.read || 0);
+    if (+new Date(latest.timestamp) > readAt) {
+      void markConversationRead(conv).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeConvId, messages.length]);
 
   // Keep the scroll at the bottom when new messages are added
   // prevent the scroll from jumping when the user is reading old messages

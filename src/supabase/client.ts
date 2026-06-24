@@ -520,6 +520,7 @@ export type ConversationExtra = {
   paused?: string | null;
   archived?: string | null;
   pinned?: string | null;
+  read?: string | null; // ISO timestamp of when the conversation was last opened/read
   default_agent_id?: string;
   draft?: {
     text: string;

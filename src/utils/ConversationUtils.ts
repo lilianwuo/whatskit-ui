@@ -48,6 +48,32 @@ export const updateConvExtra = async (
   }
 };
 
+/**
+ * Marks a conversation as read by stamping `extra.read` with the current time.
+ * Conversations whose most recent message is incoming and newer than this stamp
+ * are considered "pending"/unread. Updates the store optimistically.
+ */
+export async function markConversationRead(conversation: ConversationRow) {
+  const now = new Date().toISOString();
+
+  // Optimistic update so the UI leaves the "pending" filter immediately.
+  pushConversationToStore({
+    ...conversation,
+    extra: { ...conversation.extra, read: now },
+  });
+
+  // The conversations `set_extra` trigger merges `extra`, so other keys are kept.
+  const { error } = await supabase
+    .from("conversations")
+    .update({ extra: { read: now } })
+    .eq("organization_address", conversation.organization_address)
+    .eq("contact_address", conversation.contact_address || "");
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function saveDraft(
   conv: ConversationRow,
   text: string | null,

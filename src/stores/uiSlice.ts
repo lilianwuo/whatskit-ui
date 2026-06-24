@@ -24,7 +24,9 @@ export const filters: {
 } = {
   todas: (conv, msg) => !isArchived(conv, msg),
   pendientes: (conv, msg) =>
-    !isArchived(conv, msg) && msg?.direction === "incoming",
+    !isArchived(conv, msg) &&
+    msg?.direction === "incoming" &&
+    +new Date(msg.timestamp) > +new Date(conv.extra?.read || 0),
   "24h": (conv, msg) =>
     !isArchived(conv, msg) &&
     dayjs(msg?.timestamp || 0).isAfter(dayjs().subtract(1, "day")),
