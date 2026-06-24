@@ -8,7 +8,11 @@ import useBoundStore from "@/stores/useBoundStore";
 import { useOrganizationsAddresses } from "@/queries/useOrganizationsAddresses";
 import { useTemplates } from "@/queries/useTemplates";
 import { useCurrentAgent } from "@/queries/useAgents";
-import { buildTemplateMessage, countVars } from "@/utils/TemplateUtils";
+import {
+  buildTemplateMessage,
+  countVars,
+  type HeaderMedia,
+} from "@/utils/TemplateUtils";
 import {
   newMessage,
   pushMessageToDb,
@@ -93,6 +97,10 @@ function Broadcast() {
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Header media (for templates whose header is image/video/document)
+  const [headerMediaUrl, setHeaderMediaUrl] = useState("");
+  const [headerMediaFilename, setHeaderMediaFilename] = useState("");
+
   const [sending, setSending] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0, errors: 0 });
   const [result, setResult] = useState<{ sent: number; errors: number } | null>(
@@ -104,10 +112,28 @@ function Broadcast() {
   const nameCol = columns.find((c) => NAME_RE.test(c));
   const varColumns = columns.filter((c) => c !== phoneCol && c !== nameCol);
 
-  // Template variable counts
-  const headText = selectedTemplate?.components.find(
+  // Header: detect format (TEXT vs media) — Meta returns format on the header component
+  const headerComp = selectedTemplate?.components.find(
     (c) => c.type === "HEADER",
-  )?.text;
+  ) as { type: "HEADER"; format?: string; text?: string } | undefined;
+  const headerFormat = (headerComp?.format ?? "TEXT").toUpperCase();
+  const mediaHeaderType: HeaderMedia["type"] | null =
+    headerFormat === "IMAGE"
+      ? "image"
+      : headerFormat === "VIDEO"
+        ? "video"
+        : headerFormat === "DOCUMENT"
+          ? "document"
+          : null;
+  const mediaHeaderLabel =
+    mediaHeaderType === "image"
+      ? "imagem"
+      : mediaHeaderType === "video"
+        ? "vídeo"
+        : "documento";
+
+  // Template variable counts (media headers have no text variables)
+  const headText = mediaHeaderType ? undefined : headerComp?.text;
   const bodyText = selectedTemplate?.components.find(
     (c) => c.type === "BODY",
   )?.text;
@@ -214,10 +240,22 @@ function Broadcast() {
       .slice(headVarCount, headVarCount + bodyVarCount)
       .map((c) => String(row[c] ?? ""));
 
+    const headerMedia: HeaderMedia | undefined =
+      mediaHeaderType && headerMediaUrl.trim()
+        ? {
+            type: mediaHeaderType,
+            link: headerMediaUrl.trim(),
+            ...(mediaHeaderType === "document" && headerMediaFilename.trim()
+              ? { filename: headerMediaFilename.trim() }
+              : {}),
+          }
+        : undefined;
+
     const { template, renderedBody } = buildTemplateMessage({
       template: selectedTemplate,
       headVarValues,
       bodyVarValues,
+      headerMedia,
     });
 
     const record = newMessage(
@@ -269,6 +307,7 @@ function Broadcast() {
     !!effectiveOrgAddress &&
     !!selectedTemplate &&
     validRows.length > 0 &&
+    (!mediaHeaderType || !!headerMediaUrl.trim()) &&
     !sending;
 
   return (
@@ -289,12 +328,15 @@ function Broadcast() {
               setOrgAddress(v);
               setTemplateName(undefined);
             }}
-            options={whatsappAddresses.map((a) => ({
-              value: a.address,
-              label: a.extra?.verified_name
-                ? `${a.extra.verified_name} (${formatPhoneNumber(a.address)})`
-                : formatPhoneNumber(a.address),
-            }))}
+            options={whatsappAddresses.map((a) => {
+              const phone = a.extra?.phone_number
+                ? formatPhoneNumber(String(a.extra.phone_number).replace(/\D/g, ""))
+                : null;
+              const label =
+                [a.extra?.verified_name, phone].filter(Boolean).join(" — ") ||
+                a.address;
+              return { value: a.address, label };
+            })}
             notFoundContent="Nenhum número WhatsApp configurado"
           />
         </div>
@@ -322,6 +364,37 @@ function Broadcast() {
           {selectedTemplate && bodyText && (
             <div className="mt-[8px] p-[10px] rounded-[8px] bg-muted text-[13px] whitespace-pre-wrap">
               {bodyText}
+            </div>
+          )}
+
+          {/* Header media (image/video/document templates) */}
+          {selectedTemplate && mediaHeaderType && (
+            <div className="mt-[10px] flex flex-col gap-[6px]">
+              <label className="block text-[13px] text-muted-foreground">
+                URL pública da {mediaHeaderLabel} do cabeçalho
+              </label>
+              <input
+                type="url"
+                inputMode="url"
+                value={headerMediaUrl}
+                onChange={(e) => setHeaderMediaUrl(e.target.value)}
+                placeholder="https://…"
+                className="w-full border border-border rounded-[8px] px-[10px] py-[6px] text-[14px] bg-background focus:outline-none focus:border-primary"
+              />
+              {mediaHeaderType === "document" && (
+                <input
+                  type="text"
+                  value={headerMediaFilename}
+                  onChange={(e) => setHeaderMediaFilename(e.target.value)}
+                  placeholder="Nome do arquivo (opcional, ex.: convite.pdf)"
+                  className="w-full border border-border rounded-[8px] px-[10px] py-[6px] text-[14px] bg-background focus:outline-none focus:border-primary"
+                />
+              )}
+              <p className="text-[12px] text-muted-foreground">
+                Link HTTPS público e acessível, do mesmo tipo do modelo aprovado
+                na Meta ({mediaHeaderLabel}). A Meta baixa o arquivo pelo link no
+                envio.
+              </p>
             </div>
           )}
         </div>

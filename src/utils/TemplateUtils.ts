@@ -11,14 +11,22 @@ export function countVars(text?: string): number {
  *
  * Extracted from ChatFooter so it can be reused by the bulk dispatch feature.
  */
+export type HeaderMedia = {
+  type: "image" | "video" | "document";
+  link: string;
+  filename?: string;
+};
+
 export function buildTemplateMessage({
   template: templateData,
   headVarValues = [],
   bodyVarValues = [],
+  headerMedia,
 }: {
   template: TemplateData;
   headVarValues?: string[];
   bodyVarValues?: string[];
+  headerMedia?: HeaderMedia;
 }): { template: TemplateMessage["template"]; renderedBody: string } {
   const templateBody = templateData.components.find((c) => c.type === "BODY");
   const templateHead = templateData.components.find((c) => c.type === "HEADER");
@@ -34,6 +42,27 @@ export function buildTemplateMessage({
   let headContent = templateHead?.text;
 
   const components: NonNullable<TemplateMessage["template"]["components"]> = [];
+
+  // Media header (image/video/document): Meta needs the header component with a
+  // media parameter (public link). A header is either text or media, not both.
+  if (headerMedia?.link) {
+    const parameter =
+      headerMedia.type === "image"
+        ? { type: "image" as const, image: { link: headerMedia.link } }
+        : headerMedia.type === "video"
+          ? { type: "video" as const, video: { link: headerMedia.link } }
+          : {
+              type: "document" as const,
+              document: {
+                link: headerMedia.link,
+                ...(headerMedia.filename
+                  ? { filename: headerMedia.filename }
+                  : {}),
+              },
+            };
+
+    components.push({ type: "header", parameters: [parameter] });
+  }
 
   if (headVarValues.length && headVarCount > 0) {
     let idx = 1;
