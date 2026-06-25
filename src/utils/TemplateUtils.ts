@@ -17,6 +17,42 @@ export type HeaderMedia = {
   filename?: string;
 };
 
+/**
+ * Extracts the header media (image/video/document link) from a stored template
+ * message's `data`, so the conversation can render the media that was sent.
+ */
+export function templateHeaderMedia(data: unknown): HeaderMedia | undefined {
+  const components = (data as { components?: unknown[] })?.components;
+  if (!Array.isArray(components)) return undefined;
+
+  const header = components.find(
+    (c) => (c as { type?: string })?.type === "header",
+  ) as { parameters?: unknown[] } | undefined;
+
+  const p = header?.parameters?.[0] as
+    | {
+        type?: string;
+        image?: { link?: string };
+        video?: { link?: string };
+        document?: { link?: string; filename?: string };
+      }
+    | undefined;
+
+  if (!p) return undefined;
+  if (p.type === "image" && p.image?.link)
+    return { type: "image", link: p.image.link };
+  if (p.type === "video" && p.video?.link)
+    return { type: "video", link: p.video.link };
+  if (p.type === "document" && p.document?.link)
+    return {
+      type: "document",
+      link: p.document.link,
+      filename: p.document.filename,
+    };
+
+  return undefined;
+}
+
 export function buildTemplateMessage({
   template: templateData,
   headVarValues = [],

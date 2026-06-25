@@ -45,6 +45,35 @@ export function newMessage(
   } as MessageInsert;
 }
 
+/**
+ * Best human-readable text for a "data" message (button reply, interactive
+ * reply, template, etc.), so the UI shows a friendly label instead of raw JSON.
+ */
+export function dataMessageText(content: {
+  type: string;
+  kind?: string;
+  text?: string;
+  data?: unknown;
+}): string | undefined {
+  if (content.type !== "data") return undefined;
+  if (content.text) return content.text;
+
+  const data = content.data as Record<string, unknown> | undefined;
+
+  if (content.kind === "button") {
+    return (data?.text as string) || undefined;
+  }
+  if (content.kind === "interactive") {
+    const br = data?.button_reply as { title?: string } | undefined;
+    const lr = data?.list_reply as { title?: string } | undefined;
+    return br?.title || lr?.title;
+  }
+  if (content.kind === "template") {
+    return (data?.name as string) || undefined;
+  }
+  return undefined;
+}
+
 export function pushMessageToStore(record: MessageInsert) {
   // Let's provide a temporary timestamp so the message can be sorted.
   // We do not trust the client's time for setting the `timestamp` and `updated_at` fields. That's why.

@@ -15,7 +15,40 @@ import { useTranslation } from "@/hooks/useTranslation";
 import AvatarComponent from "@/components/Avatar";
 import { useAgent } from "@/queries/useAgents";
 import { AVATAR_BG_COLORS, AVATAR_TEXT_COLORS } from "@/utils/colors";
+import { dataMessageText } from "@/utils/MessageUtils";
+import { templateHeaderMedia, type HeaderMedia } from "@/utils/TemplateUtils";
 import type { Json } from "@/supabase/db_types";
+
+function HeaderMediaEl({ media }: { media: HeaderMedia }) {
+  if (media.type === "image") {
+    return (
+      <img
+        src={media.link}
+        alt=""
+        className="rounded-[6px] max-w-full max-h-[320px] object-cover"
+      />
+    );
+  }
+  if (media.type === "video") {
+    return (
+      <video
+        src={media.link}
+        controls
+        className="rounded-[6px] max-w-full max-h-[320px]"
+      />
+    );
+  }
+  return (
+    <a
+      href={media.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 text-primary underline break-all"
+    >
+      📄 {media.filename || "Documento"}
+    </a>
+  );
+}
 
 const md = new Remarkable({
   breaks: true,
@@ -385,11 +418,43 @@ export default function Message(props: UIMessage & { message: MessageRow }) {
       />
     );
     text = true;
-  } else if (props.message.content.type === "data" && props.message.content.text) {
+  } else if (
+    props.message.content.type === "data" &&
+    props.message.content.kind === "template"
+  ) {
+    // Template: render the header media (if any) plus the rendered body text.
+    const media = templateHeaderMedia(props.message.content.data);
+    const body =
+      props.message.content.text ||
+      ((props.message.content.data as { name?: string })?.name ?? "");
+    content = (
+      <div className="flex flex-col gap-[6px]">
+        {media && <HeaderMediaEl media={media} />}
+        <TextMessage
+          header={headerText}
+          body={body}
+          type="markdown"
+          direction={props.message.direction}
+          timestamp={props.message.timestamp}
+          status={props.message.direction === "outgoing" ? props.message.status : undefined}
+          fixedWidth={fixedWidth}
+        />
+      </div>
+    );
+    text = true;
+  } else if (
+    props.message.content.type === "data" &&
+    (props.message.content.text || dataMessageText(props.message.content))
+  ) {
+    // Other data messages with a friendly text (button/interactive replies, etc.)
     content = (
       <TextMessage
         header={headerText}
-        body={props.message.content.text}
+        body={
+          props.message.content.text ||
+          dataMessageText(props.message.content) ||
+          ""
+        }
         type="markdown"
         direction={props.message.direction}
         timestamp={props.message.timestamp}

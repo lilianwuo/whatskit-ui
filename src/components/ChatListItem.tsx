@@ -21,6 +21,7 @@ import { useCurrentAgents, useCurrentAgent } from "@/queries/useAgents";
 import { useContactByAddress } from "@/queries/useContacts";
 import { useContactAddress } from "@/queries/useContactsAddresses";
 import { nameInitials, formatPhoneNumber } from "@/utils/FormatUtils";
+import { dataMessageText } from "@/utils/MessageUtils";
 import { useNavigate } from "@tanstack/react-router";
 
 function mediaPreview(t: (content: string) => ReactNode, message?: MessageRow) {
@@ -308,10 +309,7 @@ export default function ChatListItem({
                 <div className="truncate text-[14px]">
                   {preview?.content.type === "text" && preview.content.text}
                   {preview?.content.type === "data" &&
-                    (preview.content.text ||
-                      (preview.content.data as { name?: string } | undefined)
-                        ?.name ||
-                      "")}
+                    (dataMessageText(preview.content) || "")}
                   {preview?.content.type === "file" && mediaPreviewContent}
                 </div>
               </div>
